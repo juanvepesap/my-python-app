@@ -1,0 +1,38 @@
+trigger:
+- master
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+# Instalar Terraform usando la extensión
+- task: TerraformInstaller@0
+  displayName: "Install Terraform"
+  inputs:
+    terraformVersion: '1.3.9'
+
+# Inicializar Terraform en la carpeta 'terraform'
+- task: TerraformCLI@0
+  displayName: 'Terraform Init'
+  inputs:
+    command: 'init'
+    workingDirectory: 'terraform'
+
+# Generar un plan de Terraform
+- task: TerraformCLI@0
+  displayName: 'Terraform Plan'
+  inputs:
+    command: 'plan'
+    workingDirectory: 'terraform'
+    environmentServiceNameAzureRM: 'ARM_CONNECTION'  # Conexión a Azure
+    commandOptions: '-out=tfplan'
+
+# Aplicar el plan generado
+- task: TerraformCLI@0
+  displayName: 'Terraform Apply'
+  inputs:
+    command: 'apply'
+    workingDirectory: 'terraform'
+    environmentServiceNameAzureRM: 'ARM_CONNECTION'  # Conexión a Azure
+    commandOptions: '-auto-approve tfplan'
+
